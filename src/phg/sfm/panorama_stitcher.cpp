@@ -23,7 +23,32 @@ cv::Mat phg::stitchPanorama(const std::vector<cv::Mat> &imgs,
     {
         // здесь надо посчитать вектор Hs
         // при этом можно обойтись n_images - 1 вызовами функтора homography_builder
-        throw std::runtime_error("not implemented yet");
+        std::vector<cv::Mat> parent_homographies(n_images);
+
+        for (size_t i = 0; i < n_images; ++i) {
+            if (parent[i] == -1) {
+                cv::Mat identity_mat(3, 3, CV_64FC1, 0.0);
+                identity_mat.at<double>(0, 0) = 1.0;
+                identity_mat.at<double>(1, 1) = 1.0;
+                identity_mat.at<double>(2, 2) = 1.0;
+                parent_homographies[i] = std::move(identity_mat);
+            } else {
+                parent_homographies[i] = homography_builder(imgs[i], imgs[parent[i]]);
+            }
+        }
+
+        // NOTE: Тут можно модифицировать алгоритм, чтобы не перемножать лишний
+        // раз матрицы гомографий для одних и тех же пар, но пока оставил здесь
+        // простой вариант.
+        for (size_t i = 0; i < n_images; ++i) {
+            Hs[i] = parent_homographies[i].clone();
+            int parent_idx = parent[i];
+
+            while (parent_idx != -1) {
+                Hs[i] = parent_homographies[parent_idx] * Hs[i];
+                parent_idx = parent[parent_idx];
+            }
+        }
     }
 
     bbox2<double, cv::Point2d> bbox;

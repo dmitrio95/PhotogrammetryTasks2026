@@ -14,7 +14,8 @@ namespace phg {
         static void filterMatchesClusters(const std::vector<cv::DMatch> &matches,
                                           const std::vector<cv::KeyPoint> keypoints_query,
                                           const std::vector<cv::KeyPoint> keypoints_train,
-                                          std::vector<cv::DMatch> &filtered_matches);
+                                          std::vector<cv::DMatch> &filtered_matches,
+                                          int iterations = 3);
     };
 
 }

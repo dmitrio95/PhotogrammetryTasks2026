@@ -19,8 +19,8 @@
 
 
 // TODO enable both toggles for testing custom detector & matcher
-#define ENABLE_MY_DESCRIPTOR 0
-#define ENABLE_MY_MATCHING 0
+#define ENABLE_MY_DESCRIPTOR 1
+#define ENABLE_MY_MATCHING 1
 #define ENABLE_GPU_BRUTEFORCE_MATCHER 0
 
 // TODO disable for local testing but do not commit
@@ -138,6 +138,17 @@ namespace {
 
 #if ENABLE_MY_MATCHING
         phg::DescriptorMatcher::filterMatchesRatioTest(knn_matches, good_matches);
+#if 0 // NOTE: Построение картинок с результатом применения различного числа итераций кластерного фильтра
+        for (size_t iterations = 1; iterations < 10; ++iterations) {
+            std::vector<DMatch> filtered_matches;
+            phg::DescriptorMatcher::filterMatchesClusters(good_matches, keypoints1, keypoints2, filtered_matches, iterations);
+            std::cout << "RATIO FILTER: " << iterations << " iterations, " << filtered_matches.size() << " matches\n";
+
+            cv::Mat imgMatches;
+            cv::drawMatches(img1, keypoints1, img2, keypoints2, filtered_matches, imgMatches);
+            cv::imwrite("data/debug/test_matching/ratio-" + std::to_string(iterations) + "-iterations.png", imgMatches);
+        }
+#endif
         {
             std::vector<DMatch> tmp;
             phg::DescriptorMatcher::filterMatchesClusters(good_matches, keypoints1, keypoints2, tmp);
